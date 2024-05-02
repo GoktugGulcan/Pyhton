@@ -8,7 +8,7 @@ import tkinter.messagebox
 import tkinter as tk
 import sys, os
 from tkinter import ttk
-sys.path.append("/home/alfa/Downloads/Python5/Python/MvImport")
+sys.path.append("MvImport")
 from MvCameraControl_class import MvCamera
 from CamOperation_class import *
 from PIL import Image,ImageTk
@@ -41,9 +41,9 @@ if __name__ == "__main__":
     nOpenDevSuccess = 0
     global devList
 
-    #界面设计代码
+ 
     window = tk.Tk()
-    window.title('MultipleCamerasDemo')
+    window.title('MultipleCameras')
     window.geometry('1330x1020')
     model_val = tk.StringVar()
     global triggercheck_val
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     panel3 = Label(page)
     panel3.place(x=810, y=520,height=500,width=500)
 
-    #ch:枚举相机 | en:enum devices
+    #enum devices
     def enum_devices():
         global deviceList
         global devList
@@ -73,7 +73,7 @@ if __name__ == "__main__":
             tkinter.messagebox.showerror('show error','enum devices fail! ret = '+ To_hex_str(ret))
             return
 
-        #显示相机个数
+       
         text_number_of_devices.delete(1.0, tk.END)
         text_number_of_devices.insert(1.0,str(deviceList.nDeviceNum))
 
@@ -118,7 +118,7 @@ if __name__ == "__main__":
                 print ("user serial number: %s" % strSerialNumber)
                 devList.append("USB["+str(i)+"]"+str(strSerialNumber))
     
-        #ch:打开相机 | en:open device
+        #open device
     def open_device():
         global deviceList
         global obj_cam_operation
@@ -148,7 +148,7 @@ if __name__ == "__main__":
             if 4 == nOpenDevSuccess:
                 break
 
-    # ch:开始取流 | en:Start grab image
+    #Start grab image
     def start_grabbing():
         global obj_cam_operation
         global nOpenDevSuccess
@@ -166,7 +166,7 @@ if __name__ == "__main__":
             if 0 != ret:
                 tkinter.messagebox.showerror('show error','camera:'+ str(i) +',start grabbing fail! ret = '+ To_hex_str(ret))
 
-    # ch:停止取流 | en:Stop grab image
+    #Stop grab image
     def stop_grabbing():
         global nOpenDevSuccess
         global obj_cam_operation
@@ -177,7 +177,7 @@ if __name__ == "__main__":
         print("cam stop grab ok ")
 
 
-    # ch:关闭设备 | Close device   
+    #Close device   
     def close_device():
         global b_is_run
         global obj_cam_operation
@@ -190,12 +190,12 @@ if __name__ == "__main__":
                 return
         b_is_run = False
         print("cam close ok ")
-        #清除文本框的数值
+    
         text_frame_rate.delete(1.0, tk.END)
         text_exposure_time.delete(1.0, tk.END)
         text_gain.delete(1.0, tk.END)
     
-    #ch:设置触发模式 | en:set trigger mode
+    #set trigger mode
     def set_triggermode():
         global obj_cam_operation
         global nOpenDevSuccess
@@ -206,7 +206,7 @@ if __name__ == "__main__":
                 tkinter.messagebox.showerror('show error','camera:'+ str(i) + 'set ' + strMode +' fail! ret = '+ To_hex_str(ret))
 
 
-    #ch:设置触发命令 | en:set trigger software
+    #set trigger software
     def trigger_once():
         global triggercheck_val
         global obj_cam_operation
