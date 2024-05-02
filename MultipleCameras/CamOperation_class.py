@@ -10,7 +10,7 @@ from PIL import Image, ImageTk
 from queue import Queue
 from ctypes import cdll, CFUNCTYPE
 import gc
-sys.path.append("/home/alfa/Downloads/Python5/Python/MvImport")
+sys.path.append("MvImport")
 from MvCameraControl_class import *
 from ultralytics import YOLO
 
@@ -48,7 +48,7 @@ class CameraOperation:
     def init_yolo_model(self):
         """Initialize the YOLO model."""
         try:
-            self.yolo_model = YOLO('/home/alfa/Downloads/Python5/Python/MultipleCameras/last.pt')
+            self.yolo_model = YOLO('last.pt')
         except Exception as e:
             logging.error(f"Error initializing YOLO model: {e}")
             self.yolo_model = None
@@ -227,10 +227,10 @@ class CameraOperation:
             return "None"
         return hex(num & 0xFFFFFFFF)
 
-    # 打开相机
+
     def Open_device(self):
         if self.b_open_device is False:
-            # ch:选择设备并创建句柄 | en:Select device and create handle
+            #Select device and create handle
             nConnectionNum = int(self.n_connect_num)
             stDeviceList = cast(self.st_device_list.pDeviceInfo[int(nConnectionNum)],
                                 POINTER(MV_CC_DEVICE_INFO)).contents
@@ -248,7 +248,7 @@ class CameraOperation:
             self.b_open_device = True
             self.b_thread_closed = False
 
-            # ch:探测网络最佳包大小(只对GigE相机有效) | en:Detection network optimal package size(It only works for the GigE camera)
+       Detection network optimal package size(It only works for the GigE camera)
             if stDeviceList.nTLayerType == MV_GIGE_DEVICE:
                 nPacketSize = self.cam.MV_CC_GetOptimalPacketSize()
                 if int(nPacketSize) > 0:
@@ -263,13 +263,12 @@ class CameraOperation:
             if ret != 0:
                 print("warning: get acquisition frame rate enable fail! ret[0x%x]" % ret)
 
-            # ch:设置触发模式为off | en:Set trigger mode as off
+            # Set trigger mode as off
             ret = self.cam.MV_CC_SetEnumValueByString("TriggerMode", "Off")
             if ret != 0:
                 print("warning: set trigger mode off fail! ret[0x%x]" % ret)
             return 0
 
-    # 开始取图
     def Start_grabbing(self, index, root, panel, lock):
         if False == self.b_start_grabbing and True == self.b_open_device:
             self.b_exit = False
@@ -288,10 +287,10 @@ class CameraOperation:
                 self.b_start_grabbing = False
             return ret
 
-    # 停止取图
+    
     def Stop_grabbing(self):
         if True == self.b_start_grabbing and self.b_open_device == True:
-            # 退出线程
+        
             if self.b_thread_closed:
                 self.b_exit = True
                 # Stop_thread(self.h_thread_handle)
@@ -303,10 +302,10 @@ class CameraOperation:
             self.b_start_grabbing = False
             return 0
 
-    # 关闭相机
+   
     def Close_device(self):
         if self.b_open_device:
-            # 退出线程
+         
             if self.b_thread_closed:
                 self.b_exit = False
                 self.b_thread_closed = False
@@ -314,12 +313,12 @@ class CameraOperation:
             ret = self.cam.MV_CC_CloseDevice()
             return ret
 
-        # ch:销毁句柄 | Destroy handle
+        # Destroy handle
         self.cam.MV_CC_DestroyHandle()
         self.b_open_device = False
         self.b_start_grabbing = False
 
-    # 设置触发模式
+  
     def Set_trigger_mode(self, strMode):
         if True == self.b_open_device:
             if "continuous" == strMode:
@@ -337,14 +336,13 @@ class CameraOperation:
                     return ret
                 return ret
 
-    # 软触发一次
+
     def Trigger_once(self, nCommand):
         if True == self.b_open_device:
             if 1 == nCommand:
                 ret = self.cam.MV_CC_SetCommandValue("TriggerSoftware")
                 return ret
 
-    # 获取参数
     def Get_parameter(self):
         if True == self.b_open_device:
             stFloatParam_FrameRate = MVCC_FLOATVALUE()
@@ -361,7 +359,7 @@ class CameraOperation:
             self.gain = stFloatParam_gain.fCurValue
             return ret
 
-    # 设置参数
+    
     def Set_parameter(self, frameRate, exposureTime, gain):
         if '' == frameRate or '' == exposureTime or '' == gain:
             return -1
@@ -441,7 +439,7 @@ class CameraOperation:
                     nConvertSize = stFrameInfo.stFrameInfo.nWidth * stFrameInfo.stFrameInfo.nHeight * 3 + 2048
                     stConvertParam.enDstPixelType = PixelType_Gvsp_RGB8_Packed
                     stConvertParam.pDstBuffer = (c_ubyte * nConvertSize)()
-                    stConvertParam.nBufferSize = nConvertSize  # ch:存储节点的大小 | en:Buffer node size
+                    stConvertParam.nBufferSize = nConvertSize  #Buffer node size
                     ret = self.cam.MV_CC_ConvertPixelType(stConvertParam)
                     if ret != 0:
                         logging.error(f"Error in Work_thread: Failed to convert pixel type. Error code: {ret}")
@@ -461,7 +459,7 @@ class CameraOperation:
 
 
 
-    # 存jpg图像
+   
     def Save_jpg(self, buf_cache):
         if (None == buf_cache):
             return
@@ -472,15 +470,15 @@ class CameraOperation:
             self.buf_save_image = (c_ubyte * self.n_save_image_size)()
 
         stParam = MV_SAVE_IMAGE_PARAM_EX()
-        stParam.enImageType = MV_Image_Jpeg  # ch:需要保存的图像类型 | en:Image format to save
-        stParam.enPixelType = self.st_frame_info.enPixelType  # ch:相机对应的像素格式 | en:Camera pixel type
-        stParam.nWidth = self.st_frame_info.nWidth  # ch:相机对应的宽 | en:Width
-        stParam.nHeight = self.st_frame_info.nHeight  # ch:相机对应的高 | en:Height
+        stParam.enImageType = MV_Image_Jpeg  #Image format to save
+        stParam.enPixelType = self.st_frame_info.enPixelType  #Camera pixel type
+        stParam.nWidth = self.st_frame_info.nWidth  #Width
+        stParam.nHeight = self.st_frame_info.nHeight  #Height
         stParam.nDataLen = self.st_frame_info.nFrameLen
         stParam.pData = cast(buf_cache, POINTER(c_ubyte))
         stParam.pImageBuffer = cast(byref(self.buf_save_image), POINTER(c_ubyte))
-        stParam.nBufferSize = self.n_save_image_size  # ch:存储节点的大小 | en:Buffer node size
-        stParam.nJpgQuality = 80  # ch:jpg编码，仅在保存Jpg图像时有效。保存BMP时SDK内忽略该参数
+        stParam.nBufferSize = self.n_save_image_size  #Buffer node size
+        stParam.nJpgQuality = 80  
         return_code = self.cam.MV_CC_SaveImageEx2(stParam)
 
         if return_code != 0:
@@ -502,7 +500,7 @@ class CameraOperation:
         if self.buf_save_image is not None:
             del self.buf_save_image
 
-    # 存BMP图像
+   
     def Save_Bmp(self, buf_cache):
         if (0 == buf_cache):
             return
@@ -541,7 +539,7 @@ class CameraOperation:
         if self.buf_save_image is not None:
             del self.buf_save_image
 
-   # Mono图像转为python数组
+ 
     def Mono_numpy(self, data, nWidth, nHeight):
         data_ = np.frombuffer(data, count=int(nWidth * nHeight), dtype=np.uint8, offset=0)
         data_mono_arr = data_.reshape(nHeight, nWidth)
@@ -549,7 +547,6 @@ class CameraOperation:
         numArray[:, :, 0] = data_mono_arr
         return numArray
 
-    # 彩色图像转为python数组
     def Color_numpy(self, data, nWidth, nHeight):
         data_ = np.frombuffer(data, count=int(nWidth * nHeight * 3), dtype=np.uint8, offset=0)
         data_r = data_[0:nWidth * nHeight * 3:3]
